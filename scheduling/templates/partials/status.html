@@ -1,0 +1,4 @@
+{% if a.status == 'PENDING' %}<span class="status-pill"><span class="status-bar" aria-hidden="true"></span>Pending</span>
+{% elif a.status == 'CONFIRMED' %}<span class="status-pill"><span class="status-bar status-bar--confirmed" aria-hidden="true"></span>Confirmed</span>
+{% elif a.status == 'REJECTED' %}<span class="status-pill"><span class="status-bar status-bar--declined" aria-hidden="true"></span>Declined</span>
+{% elif a.status == 'COMPLETED' %}<span class="status-pill"><span class="status-bar status-bar--completed" aria-hidden="true"></span>Completed</span>{% endif %}

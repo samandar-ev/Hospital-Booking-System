@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Edit appointment{% endblock %}
+{% block page_title %}Edit appointment{% endblock %}
+{% block page_subtitle %}Change the patient, doctor, service or time{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <form method="post" novalidate class="panel">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="fields" style="margin-top:4px">
+      {% for field in form %}{% if field.name == "" %}{% include "partials/field.html" with wide=True %}{% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'appointments' %}" class="btn btn--quiet">Cancel</a>
+      <button type="submit" class="btn">Save changes</button>
+    </div>
+  </form>
+  <aside class="aside-note">
+    <h2>What editing changes</h2>
+    <p>A pending booking stays pending and goes back to the doctor. A confirmed booking keeps its confirmation. A completed visit keeps its recorded outcome.</p>
+  </aside>
+</div>
+{% endblock %}

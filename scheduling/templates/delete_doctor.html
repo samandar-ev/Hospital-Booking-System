@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Delete doctor{% endblock %}
+{% block page_title %}Delete doctor{% endblock %}
+{% block page_subtitle %}Removes the doctor and their sign-in{% endblock %}
+
+{% block content %}
+<section class="panel confirm">
+  <p class="warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Every appointment booked with this doctor is deleted too. This cannot be undone.</p>
+  <dl class="facts">
+    <dt>Name</dt><dd>{{ doctor.name }}</dd>
+    <dt>Specialisation</dt><dd>{{ doctor.specialization }}</dd>
+    <dt>Email</dt><dd>{{ doctor.email }}</dd>
+  </dl>
+  <form method="post" class="row-actions" style="justify-content:flex-start">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger">Delete doctor</button>
+    <a href="{% url 'doctors' %}" class="btn btn--quiet">Keep doctor</a>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Edit doctor{% endblock %}
+{% block page_title %}Edit doctor{% endblock %}
+{% block page_subtitle %}Update the doctor’s account and profile{% endblock %}
+
+{% block content %}
+<div class="form-page single">
+  <form method="post" novalidate class="panel">
+    {% csrf_token %}
+    <fieldset class="fieldset">
+      <legend>Sign-in account</legend>
+      {% include "partials/form_errors.html" with form=user_form %}
+      <div class="fields">
+        {% for field in user_form %}{% include "partials/field.html" %}{% endfor %}
+      </div>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend>Doctor profile</legend>
+      {% include "partials/form_errors.html" with form=doctor_form %}
+      <div class="fields">
+        {% for field in doctor_form %}{% include "partials/field.html" %}{% endfor %}
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      <a href="{% url 'doctors' %}" class="btn btn--quiet">Cancel</a>
+      <button type="submit" class="btn">Save changes</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

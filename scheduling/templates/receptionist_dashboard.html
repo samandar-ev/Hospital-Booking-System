@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Reception{% endblock %}
+{% block page_title %}Reception{% endblock %}
+{% block page_subtitle %}Register patients and book them with a doctor. Each booking waits for the doctor to accept it.{% endblock %}
+
+{% block content %}
+<nav class="counts" aria-label="Summary">
+  <a href="{% url 'appointments' %}"><span class="label">Awaiting doctor</span><strong>{{ pending_appointments }}</strong><span class="go">Appointments</span></a>
+  <a href="{% url 'patients' %}"><span class="label">Registered patients</span><strong>{{ patients_count }}</strong><span class="go">Patient list</span></a>
+  <div class="lead-action">
+    <a href="{% url 'create_appointment' %}" class="btn"><i class="bi bi-calendar-plus" aria-hidden="true"></i>Book appointment</a>
+    <a href="{% url 'create_patient' %}" class="btn btn--quiet"><i class="bi bi-person-plus" aria-hidden="true"></i>Register patient</a>
+  </div>
+</nav>
+
+{% endblock %}

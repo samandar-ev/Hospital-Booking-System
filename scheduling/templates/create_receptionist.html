@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Add reception staff{% endblock %}
+{% block page_title %}Add reception staff{% endblock %}
+{% block page_subtitle %}Creates a sign-in for registering patients and booking appointments{% endblock %}
+
+{% block content %}
+<div class="form-page single">
+  <form method="post" novalidate class="panel">
+    {% csrf_token %}
+    <fieldset class="fieldset">
+      <legend>Sign-in account</legend>
+      {% include "partials/form_errors.html" with form=user_form %}
+      <div class="fields">
+        {% for field in user_form %}{% include "partials/field.html" %}{% endfor %}
+      </div>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend>Staff profile</legend>
+      {% include "partials/form_errors.html" with form=receptionist_form %}
+      <div class="fields">
+        {% for field in receptionist_form %}{% include "partials/field.html" %}{% endfor %}
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      <a href="{% url 'receptionists' %}" class="btn btn--quiet">Cancel</a>
+      <button type="submit" class="btn">Add staff member</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

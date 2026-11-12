@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Reception staff{% endblock %}
+{% block page_title %}Reception staff{% endblock %}
+{% block page_subtitle %}Reception registers patients and books appointments{% endblock %}
+{% block header_actions %}<a href="{% url 'create_receptionist' %}" class="btn"><i class="bi bi-person-plus" aria-hidden="true"></i>Add staff member</a>{% endblock %}
+
+{% block content %}
+<div class="ledger-wrap">
+  {% if receptionists %}
+  <table class="ledger">
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Sign-in</th><th class="end"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for receptionist in receptionists %}
+      <tr>
+        <td class="who">{{ receptionist.name }}</td>
+        <td><a href="mailto:{{ receptionist.email }}">{{ receptionist.email }}</a></td>
+        <td><span class="num">{{ receptionist.phone_number }}</span></td>
+        <td><span class="id">{{ receptionist.user.username }}</span></td>
+        <td class="end">
+          <div class="row-actions">
+            <a href="{% url 'update_receptionist' receptionist.id %}" class="btn btn--quiet btn--icon" aria-label="Edit {{ receptionist.name }}" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+            <a href="{% url 'delete_receptionist' receptionist.id %}" class="btn btn--quiet btn--icon" aria-label="Delete {{ receptionist.name }}" title="Delete"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <h3>No reception staff yet</h3>
+    <p>Add a staff member so they can register patients and book appointments</p>
+    <a href="{% url 'create_receptionist' %}" class="btn">Add staff member</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

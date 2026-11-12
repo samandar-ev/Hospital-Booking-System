@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Services{% endblock %}
+{% block page_title %}Services{% endblock %}
+{% block page_subtitle %}What patients can be booked for, and how long each visit takes{% endblock %}
+{% block header_actions %}{% if is_admin_user %}<a href="{% url 'create_service' %}" class="btn"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add service</a>{% endif %}{% endblock %}
+
+{% block content %}
+<div class="ledger-wrap">
+  {% if services %}
+  <table class="ledger">
+    <thead><tr><th>Service</th><th class="dur">Length</th>{% if is_admin_user %}<th class="end"><span class="visually-hidden">Actions</span></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for service in services %}
+      <tr>
+        <td class="who">{{ service.name }}</td>
+        <td class="dur">{{ service.duration }} min</td>
+        {% if is_admin_user %}
+        <td class="end">
+          <div class="row-actions">
+            <a href="{% url 'update_service' service.id %}" class="btn btn--quiet btn--icon" aria-label="Edit {{ service.name }}" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+            <a href="{% url 'delete_service' service.id %}" class="btn btn--quiet btn--icon" aria-label="Delete {{ service.name }}" title="Delete"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+          </div>
+        </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <h3>No services yet</h3>
+    <p>Add at least one service, such as "Consultation, 30 min", before booking appointments</p>
+    {% if is_admin_user %}<a href="{% url 'create_service' %}" class="btn">Add service</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

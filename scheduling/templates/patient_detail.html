@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.name }}{% endblock %}
+{% block page_title %}{{ patient.name }}{% endblock %}
+{% block page_subtitle %}Patient file · {{ appointments_history|length }} appointment{{ appointments_history|length|pluralize }} on record{% endblock %}
+{% block header_actions %}{% if is_admin_user or is_receptionist_user %}
+  <a href="{% url 'update_patient' patient.id %}" class="btn btn--quiet"><i class="bi bi-pencil" aria-hidden="true"></i>Edit</a>
+  <a href="{% url 'create_appointment' %}" class="btn"><i class="bi bi-calendar-plus" aria-hidden="true"></i>Book appointment</a>
+{% endif %}{% endblock %}
+
+{% block content %}
+<section class="panel split">
+  <div>
+    <h2 class="label-text" style="margin-bottom:12px">Details</h2>
+    <dl class="facts">
+      <dt>Born</dt><dd class="num">{{ patient.dob|date:"j F Y" }}</dd>
+      <dt>Phone</dt><dd class="num">{{ patient.phone_number }}</dd>
+      <dt>Email</dt><dd><a href="mailto:{{ patient.email }}">{{ patient.email }}</a></dd>
+    </dl>
+  </div>
+  <div>
+    <h2 class="label-text" style="margin-bottom:12px">Medical history</h2>
+    <p class="prose">{{ patient.medical_history|default:"Nothing recorded." }}</p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="hist-h">
+  <div class="section-head"><h2 id="hist-h">Appointments</h2><p>Most recent first</p></div>
+  <div class="ledger-wrap">
+    {% if appointments_history %}
+    <table class="ledger">
+      <thead><tr><th class="status-cell"><span class="visually-hidden">Status</span></th><th>Time</th><th>Doctor</th><th>Status</th><th>Diagnosis</th><th>Medications</th><th>Notes</th></tr></thead>
+      <tbody>
+      {% for appointment in appointments_history %}
+        <tr>
+          {% include "partials/status_cell.html" with a=appointment %}
+          <td><time datetime="{{ appointment.time|date:'c' }}">{{ appointment.time|date:"j M Y · H:i" }}</time><span class="sub">{{ appointment.service.name }}</span></td>
+          <td>{{ appointment.doctor.name }}</td>
+          <td>{% include "partials/status.html" with a=appointment %}{% if appointment.status == 'REJECTED' and appointment.rejection_reason %}<span class="sub">{{ appointment.get_rejection_reason_display }}</span>{% endif %}</td>
+          <td class="note">{{ appointment.diagnosis|default:"—" }}</td>
+          <td class="note">{{ appointment.medications|default:"—" }}</td>
+          <td class="note">{{ appointment.doctor_comments|default:"—" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty"><h3>No appointments yet</h3><p>Bookings and visit outcomes for this patient will be listed here</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

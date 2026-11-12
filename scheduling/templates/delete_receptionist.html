@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Delete reception staff{% endblock %}
+{% block page_title %}Delete reception staff{% endblock %}
+{% block page_subtitle %}Removes the staff member and their sign-in{% endblock %}
+
+{% block content %}
+<section class="panel confirm">
+  <p class="warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>They will no longer be able to sign in. This cannot be undone.</p>
+  <dl class="facts">
+    <dt>Name</dt><dd>{{ receptionist.name }}</dd>
+    <dt>Email</dt><dd>{{ receptionist.email }}</dd>
+    <dt>Sign-in</dt><dd>{{ receptionist.user.username }}</dd>
+  </dl>
+  <form method="post" class="row-actions" style="justify-content:flex-start">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger">Delete staff member</button>
+    <a href="{% url 'receptionists' %}" class="btn btn--quiet">Keep staff member</a>
+  </form>
+</section>
+{% endblock %}

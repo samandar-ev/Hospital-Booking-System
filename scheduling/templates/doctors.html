@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Doctors{% endblock %}
+{% block page_title %}Doctors{% endblock %}
+{% block page_subtitle %}Each doctor signs in to accept or decline their own bookings{% endblock %}
+{% block header_actions %}<a href="{% url 'create_doctor' %}" class="btn"><i class="bi bi-person-plus" aria-hidden="true"></i>Add doctor</a>{% endblock %}
+
+{% block content %}
+<div class="ledger-wrap">
+  {% if doctors %}
+  <table class="ledger">
+    <thead><tr><th>Name</th><th>Specialisation</th><th>Email</th><th>Phone</th><th>Sign-in</th><th class="end"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for doctor in doctors %}
+      <tr>
+        <td class="who">{{ doctor.name }}</td>
+        <td>{{ doctor.specialization }}</td>
+        <td><a href="mailto:{{ doctor.email }}">{{ doctor.email }}</a></td>
+        <td><span class="num">{{ doctor.phone_number }}</span></td>
+        <td>{% if doctor.user %}<span class="id">{{ doctor.user.username }}</span>{% else %}<span style="color:var(--decline);font-weight:600">No account</span>{% endif %}</td>
+        <td class="end">
+          <div class="row-actions">
+            <a href="{% url 'update_doctor' doctor.id %}" class="btn btn--quiet btn--icon" aria-label="Edit {{ doctor.name }}" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+            <a href="{% url 'delete_doctor' doctor.id %}" class="btn btn--quiet btn--icon" aria-label="Delete {{ doctor.name }}" title="Delete"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <h3>No doctors yet</h3>
+    <p>Add a doctor so reception can start booking appointments with them</p>
+    <a href="{% url 'create_doctor' %}" class="btn">Add doctor</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

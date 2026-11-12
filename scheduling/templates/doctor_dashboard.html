@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor{% endblock %}
+{% block page_title %}My bookings{% endblock %}
+{% block page_subtitle %}{{ request.user.doctor_profile.name }} · {{ request.user.doctor_profile.specialization }} · {% if stats.pending_total %}{{ stats.pending_total }} waiting for your decision{% else %}nothing waiting for your decision{% endif %}{% endblock %}
+
+{% block content %}
+<nav class="counts" aria-label="Summary">
+  <a href="#queue"><span class="label">Awaiting decision</span><strong>{{ stats.pending_total }}</strong></a>
+  <a href="#schedule"><span class="label">Confirmed</span><strong>{{ stats.upcoming_total }}</strong></a>
+  <a href="#history"><span class="label">Completed</span><strong>{{ stats.completed_total }}</strong></a>
+  <a href="#roster"><span class="label">My patients</span><strong>{{ stats.panel_patients }}</strong></a>
+</nav>
+
+<section id="queue" class="section" aria-labelledby="queue-h">
+  <div class="section-head">
+    <h2 id="queue-h">Decision queue</h2>
+    <p>Oldest first. Accept to put the visit on your schedule, or decline with a reason for reception.</p>
+  </div>
+  <div class="ledger-wrap">
+    {% if queue %}
+    <table class="ledger">
+      <thead><tr><th class="status-cell"><span class="visually-hidden">Status</span></th><th>Ref</th><th>Patient</th><th>Time</th><th class="dur">Length</th><th class="end"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+      {% for appointment in queue %}
+        <tr>
+          {% include "partials/status_cell.html" with a=appointment %}
+          <td class="id">APT-{{ appointment.id|stringformat:"04d" }}</td>
+          <td class="who"><a href="{% url 'patient_detail' appointment.patient.id %}">{{ appointment.patient.name }}</a><span class="sub">{{ appointment.service.name }}</span></td>
+          <td><time datetime="{{ appointment.time|date:'c' }}">{{ appointment.time|date:"D j M · H:i" }}</time></td>
+          <td class="dur">{{ appointment.service.duration }} min</td>
+          <td class="end">
+            <div class="row-actions">
+              <button type="button" class="btn btn--quiet btn--sm" data-open="decline-{{ appointment.id }}">Decline</button>
+              <form method="post" action="{% url 'confirm_appointment' appointment.id %}" data-accept>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="confirm">
+                <button type="submit" class="btn btn--sm"><i class="bi bi-check2" aria-hidden="true"></i>Accept</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+      <h3>Queue clear</h3>
+      <p>New bookings from reception land here. You decide each one before it reaches your schedule.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% for appointment in queue %}
+<dialog id="decline-{{ appointment.id }}" aria-labelledby="decline-h-{{ appointment.id }}">
+  <form method="post" action="{% url 'confirm_appointment' appointment.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="reject">
+    <div class="dialog-head">
+      <div>
+        <h2 id="decline-h-{{ appointment.id }}">Decline {{ appointment.patient.name }}</h2>
+        <p>{{ appointment.service.name }} · {{ appointment.time|date:"D j M · H:i" }}. Reception sees your reason and rebooks.</p>
+      </div>
+      <button type="button" class="btn btn--quiet btn--icon" data-close aria-label="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
+    <div class="dialog-body">
+      <div class="field">
+        <label for="reason-{{ appointment.id }}">Reason</label>
+        <select name="rejection_reason" id="reason-{{ appointment.id }}" class="form-select" required data-reason-select data-custom-target="custom-{{ appointment.id }}">
+          <option value="" selected disabled>Choose a reason</option>
+          {% for value, label in rejection_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field" id="custom-{{ appointment.id }}" hidden>
+        <label for="note-{{ appointment.id }}">Note for reception</label>
+        <textarea name="rejection_note" id="note-{{ appointment.id }}" class="form-control" rows="3" placeholder="What should reception tell the patient?"></textarea>
+      </div>
+    </div>
+    <div class="dialog-foot">
+      <button type="button" class="btn btn--quiet" data-close>Keep booking</button>
+      <button type="submit" class="btn btn--danger">Decline booking</button>
+    </div>
+  </form>
+</dialog>
+{% endfor %}
+
+<section id="schedule" class="section" aria-labelledby="schedule-h">
+  <div class="section-head">
+    <h2 id="schedule-h">Confirmed schedule</h2>
+    <p>After each visit, record the outcome to close it and add it to the patient's history</p>
+  </div>
+  <div class="ledger-wrap">
+    {% if upcoming %}
+    <table class="ledger">
+      <thead><tr><th class="status-cell"><span class="visually-hidden">Status</span></th><th>Ref</th><th>Patient</th><th>Time</th><th class="dur">Length</th><th class="end"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+      {% for appointment in upcoming %}
+        <tr>
+          {% include "partials/status_cell.html" with a=appointment %}
+          <td class="id">APT-{{ appointment.id|stringformat:"04d" }}</td>
+          <td class="who"><a href="{% url 'patient_detail' appointment.patient.id %}">{{ appointment.patient.name }}</a><span class="sub">{{ appointment.service.name }}</span></td>
+          <td><time datetime="{{ appointment.time|date:'c' }}">{{ appointment.time|date:"D j M · H:i" }}</time></td>
+          <td class="dur">{{ appointment.service.duration }} min</td>
+          <td class="end">
+            <button type="button" class="btn btn--quiet btn--sm" data-toggle-row="outcome-{{ appointment.id }}" aria-expanded="false" aria-controls="outcome-{{ appointment.id }}"><i class="bi bi-clipboard-check" aria-hidden="true"></i>Record outcome</button>
+          </td>
+        </tr>
+        <tr class="outcome-row" id="outcome-{{ appointment.id }}" hidden>
+          <td colspan="6">
+            <form method="post" action="{% url 'complete_appointment' appointment.id %}">
+              {% csrf_token %}
+              <div class="fields">
+                {% for field in appointment.conclusion_form %}{% include "partials/field.html" %}{% endfor %}
+              </div>
+              <div class="row-actions" style="justify-content:flex-start">
+                <button type="submit" class="btn">Complete visit</button>
+                <button type="button" class="btn btn--quiet" data-toggle-row="outcome-{{ appointment.id }}">Cancel</button>
+              </div>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+      <h3>No confirmed visits</h3>
+      <p>Visits you accept from the queue appear here until you record their outcome</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section id="history" class="section" aria-labelledby="history-h">
+  <div class="section-head">
+    <h2 id="history-h">Visit history</h2>
+    <p>Completed visits, most recent first</p>
+  </div>
+  <div class="ledger-wrap">
+    {% if history %}
+    <table class="ledger">
+      <thead><tr><th class="status-cell"><span class="visually-hidden">Status</span></th><th>Completed</th><th>Patient</th><th>Diagnosis</th><th>Medications</th><th>Notes</th></tr></thead>
+      <tbody>
+      {% for appointment in history %}
+        <tr>
+          {% include "partials/status_cell.html" with a=appointment %}
+          <td><time>{{ appointment.completed_at|default:appointment.time|date:"j M Y" }}</time></td>
+          <td class="who"><a href="{% url 'patient_detail' appointment.patient.id %}">{{ appointment.patient.name }}</a><span class="sub">{{ appointment.service.name }}</span></td>
+          <td class="note">{{ appointment.diagnosis|default:"—" }}</td>
+          <td class="note">{{ appointment.medications|default:"—" }}</td>
+          <td class="note">{{ appointment.doctor_comments|default:"—" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+      <h3>No completed visits yet</h3>
+      <p>Each outcome you record is kept here and in the patient's file</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section id="roster" class="section" aria-labelledby="roster-h">
+  <div class="section-head">
+    <h2 id="roster-h">My patients</h2>
+    <p>Everyone booked with you, at any status</p>
+  </div>
+  {% if patients %}
+  <ul class="roster">
+    {% for patient in patients %}
+    <li><a href="{% url 'patient_detail' patient.id %}"><strong>{{ patient.name }}</strong><span>Born <span class="num">{{ patient.dob|date:"j M Y" }}</span></span></a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No patients yet. They appear here once reception books them with you.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Register patient{% endblock %}
+{% block page_title %}Register patient{% endblock %}
+{% block page_subtitle %}Patients must be registered before they can be booked{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <form method="post" novalidate class="panel">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="fields" style="margin-top:4px">
+      {% for field in form %}{% if field.name == "medical_history" %}{% include "partials/field.html" with wide=True %}{% else %}{% include "partials/field.html" %}{% endif %}{% endfor %}
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'patients' %}" class="btn btn--quiet">Cancel</a>
+      <button type="submit" class="btn">Register patient</button>
+    </div>
+  </form>
+  <aside class="aside-note">
+    <h2>Phone format</h2>
+    <p>Use the full number with country code and no spaces: <span class="num">998901234567</span>.</p>
+    <h2>Medical history</h2>
+    <p>Allergies, chronic conditions and current medication. Doctors see this before every visit.</p>
+  </aside>
+</div>
+{% endblock %}

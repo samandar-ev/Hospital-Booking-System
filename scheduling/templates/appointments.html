@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block page_subtitle %}Every booking, earliest first. Pending ones are waiting for the doctor.{% endblock %}
+{% block header_actions %}<a href="{% url 'create_appointment' %}" class="btn"><i class="bi bi-calendar-plus" aria-hidden="true"></i>Book appointment</a>{% endblock %}
+
+{% block content %}
+<ol class="legend" aria-label="How a booking moves">
+  <li><span class="status-pill"><span class="status-bar" aria-hidden="true"></span>Pending</span>waiting for the doctor</li>
+  <li><span class="status-pill"><span class="status-bar status-bar--confirmed" aria-hidden="true"></span>Confirmed</span>accepted by the doctor</li>
+  <li><span class="status-pill"><span class="status-bar status-bar--completed" aria-hidden="true"></span>Completed</span>outcome recorded</li>
+  <li><span class="status-pill"><span class="status-bar status-bar--declined" aria-hidden="true"></span>Declined</span>see reason, then rebook</li>
+</ol>
+<div class="ledger-wrap">
+  {% if appointments %}
+  <table class="ledger">
+    <thead><tr><th class="status-cell"><span class="visually-hidden">Status</span></th><th>Ref</th><th>Patient</th><th>Doctor</th><th>Time</th><th class="dur">Length</th><th>Status</th><th class="end"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for appointment in appointments %}
+      <tr>
+        {% include "partials/status_cell.html" with a=appointment %}
+        <td class="id">APT-{{ appointment.id|stringformat:"04d" }}</td>
+        <td class="who"><a href="{% url 'patient_detail' appointment.patient.id %}">{{ appointment.patient.name }}</a><span class="sub num">{{ appointment.patient.phone_number }}</span></td>
+        <td>{{ appointment.doctor.name }}<span class="sub muted">{{ appointment.service.name }}</span></td>
+        <td><time datetime="{{ appointment.time|date:'c' }}">{{ appointment.time|date:"D j M · H:i" }}</time></td>
+        <td class="dur">{{ appointment.service.duration }} min</td>
+        <td class="note">
+          {% include "partials/status.html" with a=appointment %}
+          {% if appointment.status == 'REJECTED' and appointment.rejection_reason %}
+            <span class="sub">{{ appointment.get_rejection_reason_display }}{% if appointment.rejection_note %}: {{ appointment.rejection_note }}{% endif %}</span>
+          {% elif appointment.status == 'COMPLETED' %}
+            <span class="sub"><b>Diagnosis</b> {{ appointment.diagnosis|default:"—" }}</span>
+            {% if appointment.medications %}<span class="sub"><b>Medications</b> {{ appointment.medications }}</span>{% endif %}
+          {% endif %}
+        </td>
+        <td class="end">
+          <div class="row-actions">
+            <a href="{% url 'update_appointment' appointment.id %}" class="btn btn--quiet btn--icon" aria-label="Edit APT-{{ appointment.id|stringformat:'04d' }}" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+            <a href="{% url 'delete_appointment' appointment.id %}" class="btn btn--quiet btn--icon" aria-label="Delete APT-{{ appointment.id|stringformat:'04d' }}" title="Delete"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <h3>No appointments yet</h3>
+    <p>Book a patient with a doctor. The booking shows here as pending until the doctor accepts it.</p>
+    <a href="{% url 'create_appointment' %}" class="btn">Book appointment</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

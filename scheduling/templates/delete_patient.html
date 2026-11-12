@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Delete patient{% endblock %}
+{% block page_title %}Delete patient{% endblock %}
+{% block page_subtitle %}Removes the patient’s file from the clinic{% endblock %}
+
+{% block content %}
+<section class="panel confirm">
+  <p class="warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>All of this patient’s appointments and visit outcomes are deleted too. This cannot be undone.</p>
+  <dl class="facts">
+    <dt>Name</dt><dd>{{ patient.name }}</dd>
+    <dt>Born</dt><dd><span class="num">{{ patient.dob|date:"j M Y" }}</span></dd>
+    <dt>Phone</dt><dd><span class="num">{{ patient.phone_number }}</span></dd>
+  </dl>
+  <form method="post" class="row-actions" style="justify-content:flex-start">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger">Delete patient</button>
+    <a href="{% url 'patients' %}" class="btn btn--quiet">Keep patient</a>
+  </form>
+</section>
+{% endblock %}

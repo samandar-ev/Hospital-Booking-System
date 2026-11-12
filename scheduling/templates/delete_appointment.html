@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Delete appointment{% endblock %}
+{% block page_title %}Delete appointment{% endblock %}
+{% block page_subtitle %}Use this for bookings made in error. Declined bookings can stay on record.{% endblock %}
+
+{% block content %}
+<section class="panel confirm">
+  <p class="warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>This removes the booking and any recorded outcome. It cannot be undone.</p>
+  <dl class="facts">
+    <dt>Ref</dt><dd><span class="num">APT-{{ appointment.id|stringformat:"04d" }}</span></dd>
+    <dt>Patient</dt><dd>{{ appointment.patient.name }}</dd>
+    <dt>Doctor</dt><dd>{{ appointment.doctor.name }}</dd>
+    <dt>Service</dt><dd>{{ appointment.service.name }}</dd>
+    <dt>Time</dt><dd><time>{{ appointment.time|date:"D j M Y · H:i" }}</time></dd>
+  </dl>
+  <form method="post" class="row-actions" style="justify-content:flex-start">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger">Delete appointment</button>
+    <a href="{% url 'appointments' %}" class="btn btn--quiet">Keep appointment</a>
+  </form>
+</section>
+{% endblock %}

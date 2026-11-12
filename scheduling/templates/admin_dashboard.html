@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Overview{% endblock %}
+{% block page_title %}Clinic overview{% endblock %}
+{% block page_subtitle %}{% if pending_appointments %}{{ pending_appointments }} booking{{ pending_appointments|pluralize }} across the clinic {{ pending_appointments|pluralize:"is,are" }} waiting for a doctor's decision{% else %}Every booking has a doctor's decision{% endif %}{% endblock %}
+{% block header_actions %}<a href="{% url 'create_appointment' %}" class="btn"><i class="bi bi-calendar-plus" aria-hidden="true"></i>Book appointment</a>{% endblock %}
+
+{% block content %}
+<nav class="counts" aria-label="Summary">
+  <a href="{% url 'appointments' %}"><span class="label">Awaiting decision</span><strong>{{ pending_appointments }}</strong><span class="go">Appointments</span></a>
+  <a href="{% url 'patients' %}"><span class="label">Patients</span><strong>{{ total_patients }}</strong><span class="go">Patient list</span></a>
+  <a href="{% url 'doctors' %}"><span class="label">Doctors</span><strong>{{ total_doctors }}</strong><span class="go">Doctor accounts</span></a>
+  <a href="{% url 'receptionists' %}"><span class="label">Reception staff</span><strong>{{ total_receptionists }}</strong><span class="go">Staff accounts</span></a>
+</nav>
+
+
+<section class="section" aria-labelledby="setup-h">
+  <div class="section-head"><h2 id="setup-h">Set up the clinic</h2></div>
+  <ul class="actions-list">
+    <li><a href="{% url 'create_doctor' %}"><i class="bi bi-person-badge" aria-hidden="true"></i><div><strong>Add a doctor</strong><span>Creates their sign-in and profile. They start receiving bookings right away.</span></div><i class="bi bi-arrow-right" aria-hidden="true"></i></a></li>
+    <li><a href="{% url 'create_receptionist' %}"><i class="bi bi-person-workspace" aria-hidden="true"></i><div><strong>Add reception staff</strong><span>Reception registers patients and books appointments</span></div><i class="bi bi-arrow-right" aria-hidden="true"></i></a></li>
+    <li><a href="{% url 'create_service' %}"><i class="bi bi-list-check" aria-hidden="true"></i><div><strong>Add a service</strong><span>Name and length in minutes. Reception picks from this list when booking.</span></div><i class="bi bi-arrow-right" aria-hidden="true"></i></a></li>
+    <li><a href="{% url 'create_patient' %}"><i class="bi bi-person-plus" aria-hidden="true"></i><div><strong>Register a patient</strong><span>Contact details, date of birth and medical history</span></div><i class="bi bi-arrow-right" aria-hidden="true"></i></a></li>
+  </ul>
+</section>
+{% endblock %}

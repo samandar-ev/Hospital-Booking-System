@@ -1,0 +1,10 @@
+from django.apps import AppConfig
+
+
+class SchedulingConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'scheduling'
+
+    def ready(self):
+        # Import signals to ensure role groups exist after migrations.
+        from . import signals  # noqa: F401

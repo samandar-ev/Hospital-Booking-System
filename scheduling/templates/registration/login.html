@@ -1,0 +1,45 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Serenity Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'scheduling/css/app.css' %}">
+</head>
+<body>
+<main class="auth">
+  <section class="auth-side">
+    <div class="brand"><strong>Serenity Health</strong><span>Clinic booking</span></div>
+    <div>
+      <h1>No booking is final until the doctor accepts it.</h1>
+      <p>Reception books, doctors decide, and every visit closes with a recorded outcome</p>
+    </div>
+    <ol class="auth-steps">
+      <li><span class="status-bar" aria-hidden="true"></span><div><strong>Pending</strong><span>Reception picks the patient, doctor, service and time</span></div></li>
+      <li><span class="status-bar status-bar--confirmed" aria-hidden="true"></span><div><strong>Confirmed</strong><span>The doctor confirms, or declines with a reason</span></div></li>
+      <li><span class="status-bar status-bar--completed" aria-hidden="true"></span><div><strong>Completed</strong><span>Diagnosis, medications and notes go to the patient's file</span></div></li>
+    </ol>
+  </section>
+  <section class="auth-form-wrap">
+    <form method="post" novalidate class="auth-form">
+      {% csrf_token %}
+      <div>
+        <h2>Sign in</h2>
+        <p class="muted" style="margin-top:4px">Use the account your clinic administrator gave you</p>
+      </div>
+      {% if messages %}{% for message in messages %}<div class="message message--{{ message.tags|default:'info' }}"><i class="bi bi-info-circle" aria-hidden="true"></i><p>{{ message }}</p></div>{% endfor %}{% endif %}
+      {% if form.non_field_errors %}
+      <div class="message message--error" role="alert"><i class="bi bi-exclamation-octagon" aria-hidden="true"></i><p>{{ form.non_field_errors|striptags }}</p></div>
+      {% endif %}
+      {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+      <button type="submit" class="btn btn--block" style="min-height:46px;font-size:15px">Sign in</button>
+    </form>
+  </section>
+</main>
+<script src="{% static 'scheduling/js/app.js' %}" defer></script>
+</body>
+</html>

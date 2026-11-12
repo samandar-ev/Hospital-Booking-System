@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Book appointment{% endblock %}
+{% block page_title %}Book appointment{% endblock %}
+{% block page_subtitle %}The booking stays pending until the doctor accepts or declines it{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <form method="post" novalidate class="panel">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="fields">
+      {% for field in form %}{% include "partials/field.html" %}{% endfor %}
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'appointments' %}" class="btn btn--quiet">Cancel</a>
+      <button type="submit" class="btn"><i class="bi bi-send" aria-hidden="true"></i>Send to doctor</button>
+    </div>
+  </form>
+
+  {% if doctor_schedules %}
+  <aside class="section" aria-labelledby="avail-h">
+    <div class="section-head">
+      <h2 id="avail-h">Doctors' bookings</h2>
+      <p>Pending and confirmed visits. Check for clashes before you book.</p>
+    </div>
+    <div class="avail">
+      {% for doctor, schedule in doctor_schedules %}
+      <details {% if schedule and forloop.first %}open{% endif %}>
+        <summary><i class="bi bi-chevron-right" aria-hidden="true"></i>{{ doctor.name }} <small>{{ doctor.specialization }}</small><span class="num">{{ schedule|length }}</span></summary>
+        {% if schedule %}
+        <ul>
+          {% for appointment in schedule %}
+          <li><time datetime="{{ appointment.time|date:'c' }}">{{ appointment.time|date:"D j M · H:i" }}</time>{% include "partials/status.html" with a=appointment %}<span class="muted">{{ appointment.patient.name }}</span></li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <ul><li class="muted">Nothing booked.</li></ul>
+        {% endif %}
+      </details>
+      {% endfor %}
+    </div>
+  </aside>
+  {% endif %}
+</div>
+{% endblock %}

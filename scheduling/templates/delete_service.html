@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Delete service{% endblock %}
+{% block page_title %}Delete service{% endblock %}
+{% block page_subtitle %}Removes the service from the booking list{% endblock %}
+
+{% block content %}
+<section class="panel confirm">
+  <p class="warn"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Every appointment booked for this service is deleted too. This cannot be undone.</p>
+  <dl class="facts">
+    <dt>Service</dt><dd>{{ service.name }}</dd>
+    <dt>Length</dt><dd><span class="num">{{ service.duration }} min</span></dd>
+  </dl>
+  <form method="post" class="row-actions" style="justify-content:flex-start">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger">Delete service</button>
+    <a href="{% url 'services' %}" class="btn btn--quiet">Keep service</a>
+  </form>
+</section>
+{% endblock %}

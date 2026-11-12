@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}No role yet{% endblock %}
+{% block page_title %}Your account has no role yet{% endblock %}
+{% block page_subtitle %}You're signed in, but an administrator still needs to make you a doctor, receptionist or administrator{% endblock %}
+
+{% block content %}
+<section class="panel confirm">
+  <p>Ask your clinic's administrator to add your account to the right group. Once they do, sign in again and your workspace will open.</p>
+  <form method="post" action="{% url 'logout' %}" style="margin-top:20px">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--quiet"><i class="bi bi-box-arrow-left" aria-hidden="true"></i>Sign out</button>
+  </form>
+</section>
+{% endblock %}

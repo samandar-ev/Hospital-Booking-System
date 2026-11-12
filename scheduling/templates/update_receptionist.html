@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Edit reception staff{% endblock %}
+{% block page_title %}Edit reception staff{% endblock %}
+{% block page_subtitle %}Update the staff member’s account and profile{% endblock %}
+
+{% block content %}
+<div class="form-page single">
+  <form method="post" novalidate class="panel">
+    {% csrf_token %}
+    <fieldset class="fieldset">
+      <legend>Sign-in account</legend>
+      {% include "partials/form_errors.html" with form=user_form %}
+      <div class="fields">
+        {% for field in user_form %}{% include "partials/field.html" %}{% endfor %}
+      </div>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend>Staff profile</legend>
+      {% include "partials/form_errors.html" with form=receptionist_form %}
+      <div class="fields">
+        {% for field in receptionist_form %}{% include "partials/field.html" %}{% endfor %}
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      <a href="{% url 'receptionists' %}" class="btn btn--quiet">Cancel</a>
+      <button type="submit" class="btn">Save changes</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

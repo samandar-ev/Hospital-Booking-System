@@ -1,0 +1,82 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Workspace{% endblock %} · Serenity Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'scheduling/css/app.css' %}">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <a class="mark" href="{% url 'home' %}" title="Serenity Health">
+      <span class="mark-tile" aria-hidden="true">S</span>
+      <span class="lbl">{% if is_admin_user %}Admin{% elif is_doctor_user %}Doctor{% elif is_receptionist_user %}Reception{% else %}Staff{% endif %}</span>
+      <span class="visually-hidden">Serenity Health</span>
+    </a>
+    {% if request.user.is_authenticated %}
+    <nav aria-label="Main">
+      {% with current=request.resolver_match.url_name %}
+      <ul class="nav">
+        {% if is_doctor_user %}
+          <li><a href="{% url 'home' %}#queue" {% if current == 'home' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-inbox" aria-hidden="true"></i>{% if stats.pending_total %}<span class="count">{{ stats.pending_total }}</span>{% endif %}</span><span class="lbl">Queue</span></a></li>
+          <li><a href="{% url 'home' %}#schedule" ><span class="ico"><i class="bi bi-calendar-week" aria-hidden="true"></i>{% if stats.upcoming_total %}<span class="count">{{ stats.upcoming_total }}</span>{% endif %}</span><span class="lbl">Schedule</span></a></li>
+          <li><a href="{% url 'home' %}#history" ><span class="ico"><i class="bi bi-journal-check" aria-hidden="true"></i></span><span class="lbl">History</span></a></li>
+          <li><a href="{% url 'home' %}#roster" {% if current == 'patient_detail' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-people" aria-hidden="true"></i></span><span class="lbl">Patients</span></a></li>
+          <li><a href="{% url 'services' %}" {% if current == 'services' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-list-check" aria-hidden="true"></i></span><span class="lbl">Services</span></a></li>
+        {% else %}
+          <li><a href="{% url 'home' %}" {% if current == 'home' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-grid" aria-hidden="true"></i></span><span class="lbl">Overview</span></a></li>
+          {% if is_admin_user or is_receptionist_user %}
+          <li><a href="{% url 'appointments' %}" {% if current in 'appointments create_appointment update_appointment delete_appointment' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span><span class="lbl">Bookings</span></a></li>
+          <li><a href="{% url 'patients' %}" {% if current in 'patients create_patient update_patient delete_patient patient_detail' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-people" aria-hidden="true"></i></span><span class="lbl">Patients</span></a></li>
+          {% endif %}
+          {% if is_admin_user %}
+          <li><a href="{% url 'doctors' %}" {% if current in 'doctors create_doctor update_doctor delete_doctor' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-person-badge" aria-hidden="true"></i></span><span class="lbl">Doctors</span></a></li>
+          <li><a href="{% url 'receptionists' %}" {% if current in 'receptionists create_receptionist update_receptionist delete_receptionist' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-person-workspace" aria-hidden="true"></i></span><span class="lbl">Staff</span></a></li>
+          {% endif %}
+          <li><a href="{% url 'services' %}" {% if current in 'services create_service update_service delete_service' %}aria-current="page"{% endif %}><span class="ico"><i class="bi bi-list-check" aria-hidden="true"></i></span><span class="lbl">Services</span></a></li>
+        {% endif %}
+      </ul>
+      {% endwith %}
+    </nav>
+    <div class="rail-foot">
+      <span class="avatar" title="{{ request.user.get_full_name|default:request.user.username }}{% if request.user.doctor_profile %} · {{ request.user.doctor_profile.specialization }}{% endif %}">{% if request.user.first_name %}{{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}{% else %}{{ request.user.username|slice:":2"|upper }}{% endif %}</span>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="signout"><span class="ico"><i class="bi bi-box-arrow-left" aria-hidden="true"></i></span><span class="lbl">Sign out</span></button>
+      </form>
+    </div>
+    {% endif %}
+  </aside>
+
+  <main class="main" id="main">
+    <header class="page-head">
+      <div>
+        <h1>{% block page_title %}{% endblock %}</h1>
+        {% block page_subtitle_wrap %}<p>{% block page_subtitle %}{% endblock %}</p>{% endblock %}
+      </div>
+      <div class="page-actions">{% block header_actions %}{% endblock %}</div>
+    </header>
+
+    {% if messages %}
+    <div class="messages" role="status">
+      {% for message in messages %}
+      <div class="message message--{{ message.tags|default:'info' }}">
+        <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-exclamation-octagon{% elif message.tags == 'warning' %}bi-exclamation-triangle{% else %}bi-info-circle{% endif %}" aria-hidden="true"></i>
+        <p>{{ message }}</p>
+        <button type="button" class="dismiss" data-dismiss aria-label="Dismiss"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="{% static 'scheduling/js/app.js' %}" defer></script>
+</body>
+</html>
